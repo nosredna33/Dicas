@@ -32,17 +32,14 @@ n
 n
 ∑X 
 i
-​
- 
-​
- 
+  
 Onde 
 X
 i
 X 
 i
 ​
-  são os valores da amostra e 
+são os valores da amostra e 
 n
 n é o número total de valores.
 
@@ -284,7 +281,8 @@ Aqui estão algumas abordagens que podem ser usadas para corrigir o desvio padr�
 
 1. Correção de Fisher (Excess Kurtosis)
 Para dados com alta curtose (mais picos ou caudas mais pesadas que a normal), você pode ajustar o desvio padrão com base na curtose excessiva.
-
+Java 
+```
 public class DesvioPadraoCorrigido {
 
     // Calcular média
@@ -339,7 +337,8 @@ public class DesvioPadraoCorrigido {
         System.out.println("Desvio padrão corrigido: " + desvioPadraoCorrigido);
     }
 }
-Explicação:
+```
+### Explicação:
 Curtose: O método calcularCurtose calcula a curtose excessiva, que compara o pico da distribuição com uma distribuição normal.
 
 Correção do desvio padrão: O método calcularDesvioPadraoCorrigido ajusta o desvio padrão com base no valor da curtose. Se a curtose for maior que zero (caudas pesadas), o desvio padrão é ampliado. Se for menor que zero (caudas leves), o desvio padrão é reduzido.
