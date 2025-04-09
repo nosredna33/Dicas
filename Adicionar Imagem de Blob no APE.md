@@ -1,11 +1,7 @@
-Pular para o conteúdo
-Abrir barra lateral
-
-ChatGPT
-
-Saved memory full
-Você disse:
+# Visualizar Imagens de BLOB em Páginas HTML em APEX 
+## Você disse:
 o que há de errado com o meu PL/SQL, usado em um APEX, Dynamic Content. PL/SQL:
+``` plsql
 	for c1 in (
 		SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
 		  FROM BANCAS
@@ -24,12 +20,14 @@ o que há de errado com o meu PL/SQL, usado em um APEX, Dynamic Content. PL/SQL:
 				|| '" HEIGHT="100" WIDTH="140" ALIGN="left"/>'
 				|| '<br>'
 				|| apex_markdown.to_html(:PX_CONTENT));
-	end loop; 
-O ChatGPT disse:
+	end loop;
+```
+
+## O ChatGPT disse:
 Parece que o problema no seu código PL/SQL usado como Dynamic Content no Oracle APEX pode estar relacionado à maneira como você está utilizando o comando RETURN dentro de um loop FOR. No PL/SQL, RETURN é utilizado para encerrar uma função ou procedimento, e não para imprimir conteúdo diretamente na página. Para emitir o conteúdo HTML na página, você deve utilizar apenas o htp.p() dentro do loop sem o RETURN.
 
 Aqui está uma versão corrigida do seu código:
-
+``` plsql
 BEGIN
     FOR c1 IN (
         SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
@@ -52,7 +50,10 @@ BEGIN
         );
     END LOOP;
 END;
-Principais alterações:
+/
+```
+
+## Principais alterações:
 
 Removi o RETURN dentro do loop. O htp.p() já é responsável por enviar o conteúdo para a saída da página.
 
@@ -63,7 +64,11 @@ Certifique-se de que a substituição :PX_CONTENT está devidamente definida e r
 Você disse:
 O erro persiste com a mensagem:
 error_statement:
-declare function x return CLOB is begin for c1 in (
+``` plsql
+declare
+	function x return CLOB is
+	begin
+	for c1 in (
 		SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
 		  FROM BANCAS
 		 WHERE ID_BANCA = 3 )
@@ -82,35 +87,45 @@ declare function x return CLOB is begin for c1 in (
 				|| '<br>'
 				|| apex_markdown.to_html(:PX_CONTENT));
 	end loop;
-return null; end; begin apex_exec.g_value.clob_value := x; end;
-O ChatGPT disse:
+	return null;
+end;
+/
+
+begin
+	apex_exec.g_value.clob_value := x;
+end;
+
+## O ChatGPT disse:
 O erro ocorre porque o PL/SQL que você está utilizando está sendo tratado como uma função que retorna um CLOB, e há uma expectativa de que essa função retorne um valor específico. No entanto, ao usar htp.p() para gerar conteúdo dinâmico, não é necessário envolver o código em uma função, especialmente em um bloco de conteúdo dinâmico no APEX.
 
 Aqui está uma versão ajustada para uso em um Dynamic Content do APEX, sem necessidade de declarar funções ou retornar valores explícitos:
+``` plsql
+	BEGIN
+	    FOR c1 IN (
+	        SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
+	        FROM BANCAS
+	        WHERE ID_BANCA = 3
+	    ) LOOP
+	        htp.p(
+	            '<br><img src="data:' 
+	            || c1.TX_ICONE_MIMETYPE
+	            || ';base64,' 
+	            || apex_web_service.blob2clobbase64(c1.BL_ICONE_BINARIO)
+	            || '" '
+	            || ' alt="'
+	            || c1.NM_ICONE
+	            || '" title="'
+	            || c1.NM_ICONE
+	            || '" HEIGHT="100" WIDTH="140" ALIGN="left"/>'
+	            || '<br>'
+	            || apex_markdown.to_html(:PX_CONTENT)
+	        );
+	    END LOOP;
+	END;
+/
+```
 
-BEGIN
-    FOR c1 IN (
-        SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
-        FROM BANCAS
-        WHERE ID_BANCA = 3
-    ) LOOP
-        htp.p(
-            '<br><img src="data:' 
-            || c1.TX_ICONE_MIMETYPE
-            || ';base64,' 
-            || apex_web_service.blob2clobbase64(c1.BL_ICONE_BINARIO)
-            || '" '
-            || ' alt="'
-            || c1.NM_ICONE
-            || '" title="'
-            || c1.NM_ICONE
-            || '" HEIGHT="100" WIDTH="140" ALIGN="left"/>'
-            || '<br>'
-            || apex_markdown.to_html(:PX_CONTENT)
-        );
-    END LOOP;
-END;
-Correções importantes:
+### Correções importantes:
 
 Bloco PL/SQL Simples: O código deve ser um bloco anônimo BEGIN ... END;, pois o APEX irá executá-lo diretamente sem a necessidade de uma função ou de retornar um valor.
 
@@ -128,39 +143,39 @@ O código está inserido corretamente dentro de um region type "PL/SQL Dynamic C
 
 Se precisar de mais assistência ou se o erro persistir, me avise para investigar mais a fundo!
 
-Você disse:
+## Você disse:
 se eu deixo só isso ele funciona
 O ChatGPT disse:
 Se o seu código funciona corretamente quando está sem a declaração da função, isso confirma que o problema estava na estrutura desnecessária da função e do retorno. No contexto do Oracle APEX, especialmente em regiões de "PL/SQL Dynamic Content", o APEX espera que o código PL/SQL gere diretamente a saída que será exibida na página, sem a necessidade de declarar funções ou lidar com retornos.
 
-Explicação:
+#### Explicação:
 Uso de htp.p(): Esta função é projetada para enviar saída HTML diretamente para a página, e isso é suficiente dentro de um bloco BEGIN ... END; em
 
-Quando você usa apenas o comando:
-
+#### Quando você usa apenas o comando:
 htp.p(apex_markdown.to_html(:PX_CONTENT));
 ele funciona porque você está diretamente convertendo o conteúdo Markdown presente na variável :PX_CONTENT para HTML e exibindo na página através do htp.p(). Essa é uma maneira direta e simples de exibir conteúdo dinâmico usando o APEX.
 
-Funcionamento do Comando:
+#### Funcionamento do Comando:
 :PX_CONTENT: Essa é uma referência a uma variável de página ou item que contém o texto em formato Markdown que você quer converter para HTML.
 
 apex_markdown.to_html(...): Esta função converte o texto Markdown para HTML, tornando-o pronto para ser renderizado em uma página web.
 
 htp.p(...): Envia o HTML gerado pela conversão para o buffer de saída da página, exibindo o resultado ao usuário.
 
-Observações:
+#### Observações:
 Segurança: Ao exibir conteúdo HTML gerado a partir de entradas do usuário, certifique-se de que a entrada está validada ou sanitizada para evitar injeção de HTML ou JavaScript malicioso.
 
 Uso Correto de Itens de Página: Verifique se :PX_CONTENT está corretamente configurado e recebendo o valor que você deseja converter e exibir.
 
 Essa abordagem é ideal para exibir conteúdo dinâmico de forma eficiente, sem a complexidade de estruturas de funções desnecessárias. Se precisar ajustar ou adicionar mais conteúdo dinâmico, o mesmo padrão pode ser seguido para outras funcionalidades.
 
-Você disse:
+### Você disse:
 no entanto eu preciso juntar a este texto uma imagem persistida numa tabela no banco
 O ChatGPT disse:
 Para incluir uma imagem armazenada no banco de dados junto com o texto convertido de Markdown, você deve garantir que a imagem seja carregada corretamente e combinada com o HTML gerado. Vou mostrar como ajustar o código para que ele exiba a imagem e o texto juntos.
 
-Código Ajustado:
+### Código Ajustado:
+``` plsql
 BEGIN
     FOR c1 IN (
         SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
@@ -186,50 +201,61 @@ BEGIN
     -- Adiciona o texto convertido de Markdown para HTML
     htp.p(apex_markdown.to_html(:PX_CONTENT));
 END;
-Explicações das Alterações:
+/
+```
+
+##### Explicações das Alterações:
 Loop para Imagem: O loop é mantido para buscar os dados da imagem na tabela BANCAS. A imagem é convertida para uma string Base64 usando apex_web_service.blob2clobbase64, e a tag <img> é gerada com as propriedades corretas para exibição.
 
 Combinação de Saídas: O comando htp.p() é usado tanto para a imagem quanto para o conteúdo de texto. Primeiro, a imagem é exibida e, em seguida, o texto formatado em HTML é adicionado.
 
 Evite RETURN: Não é necessário retornar nada dentro do bloco BEGIN ... END; em um Dynamic Content, pois o APEX interpreta a saída do htp.p() como conteúdo direto da página.
 
-Considerações Finais:
+#### Considerações Finais:
 Alinhamento e Estilo: Se precisar ajustar o alinhamento ou o estilo da imagem em relação ao texto, considere adicionar CSS inline na tag <img> ou ajustar a estrutura do HTML.
 
 Segurança: Certifique-se de que o conteúdo de :PX_CONTENT está livre de entradas potencialmente maliciosas, já que ele será convertido e exibido como HTML.
 
 Se precisar de mais ajustes ou tiver alguma dúvida específica sobre o comportamento do código, me avise!
 
-Você disse:
+### Você disse:
 Não funciona dá este erro:
 
-error_statement:
-declare function x return CLOB is begin BEGIN
-    FOR c1 IN (
-        SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
-        FROM BANCAS
-        WHERE ID_BANCA = 3
-    ) LOOP
-        -- Adiciona a imagem codificada em Base64 ao HTML
-        htp.p(
-            '<br><img src="data:' 
-            || c1.TX_ICONE_MIMETYPE
-            || ';base64,' 
-            || apex_web_service.blob2clobbase64(c1.BL_ICONE_BINARIO)
-            || '" '
-            || ' alt="'
-            || c1.NM_ICONE
-            || '" title="'
-            || c1.NM_ICONE
-            || '" HEIGHT="100" WIDTH="140" ALIGN="left"/>'
-            || '<br>'
-        );
-    END LOOP;
-
-    -- Adiciona o texto convertido de Markdown para HTML
-    htp.p(apex_markdown.to_html(:PX_CONTENT));
-END;
-return null; end; begin apex_exec.g_value.clob_value := x; end;
+#### error_statement:
+``` plsql
+declare
+	function x return CLOB is begin
+	BEGIN
+	    FOR c1 IN (
+	        SELECT BL_ICONE_BINARIO, TX_ICONE_MIMETYPE, NM_ICONE 
+	        FROM BANCAS
+	        WHERE ID_BANCA = 3
+	    ) LOOP
+	        -- Adiciona a imagem codificada em Base64 ao HTML
+	        htp.p(
+	            '<br><img src="data:' 
+	            || c1.TX_ICONE_MIMETYPE
+	            || ';base64,' 
+	            || apex_web_service.blob2clobbase64(c1.BL_ICONE_BINARIO)
+	            || '" '
+	            || ' alt="'
+	            || c1.NM_ICONE
+	            || '" title="'
+	            || c1.NM_ICONE
+	            || '" HEIGHT="100" WIDTH="140" ALIGN="left"/>'
+	            || '<br>'
+	        );
+	   END LOOP;
+           -- Adiciona o texto convertido de Markdown para HTML
+           htp.p(apex_markdown.to_html(:PX_CONTENT));
+        END;
+	return null;
+end;
+/
+begin
+	apex_exec.g_value.clob_value := x;
+end;
+``` 
 O ChatGPT disse:
 O erro persiste porque o APEX continua tratando o bloco PL/SQL como uma função, enquanto o código deve ser um simples bloco anônimo de PL/SQL (BEGIN ... END;) em vez de uma função ou declaração complexa. Para resolver esse problema, você deve eliminar a declaração de função completamente e usar um bloco direto, como se segue:
 
