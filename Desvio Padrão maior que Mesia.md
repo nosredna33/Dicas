@@ -209,7 +209,7 @@ Você disse:
 pode fazer uma função em Java para este calculo
 O ChatGPT disse:
 Aqui está uma função em Java para calcular o desvio padrão de uma lista de valores. Ela utiliza os passos que expliquei anteriormente:
-
+``` Java
 public class DesvioPadrao {
 
     // Método para calcular a média
@@ -246,6 +246,8 @@ public class DesvioPadrao {
         System.out.println("O desvio padrão é: " + desvioPadrao);
     }
 }
+```
+
 Explicação:
 calcularMedia: Este método calcula a média da lista de valores.
 
