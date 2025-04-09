@@ -206,6 +206,7 @@ Você disse:
 pode fazer uma função em Java para este calculo
 O ChatGPT disse:
 Aqui está uma função em Java para calcular o desvio padrão de uma lista de valores. Ela utiliza os passos que expliquei anteriormente:
+
 ``` Java
 public class DesvioPadrao {
 
@@ -281,8 +282,8 @@ Aqui estão algumas abordagens que podem ser usadas para corrigir o desvio padr�
 
 1. Correção de Fisher (Excess Kurtosis)
 Para dados com alta curtose (mais picos ou caudas mais pesadas que a normal), você pode ajustar o desvio padrão com base na curtose excessiva.
-Java 
-```
+ 
+``` Java
 public class DesvioPadraoCorrigido {
 
     // Calcular média
@@ -341,11 +342,12 @@ public class DesvioPadraoCorrigido {
 ### Explicação:
 Curtose: O método calcularCurtose calcula a curtose excessiva, que compara o pico da distribuição com uma distribuição normal.
 
-Correção do desvio padrão: O método calcularDesvioPadraoCorrigido ajusta o desvio padrão com base no valor da curtose. Se a curtose for maior que zero (caudas pesadas), o desvio padrão é ampliado. Se for menor que zero (caudas leves), o desvio padrão é reduzido.
+#### Correção do desvio padrão:
+O método <span>calcularDesvioPadraoCorrigi</span> do ajusta o desvio padrão com base no valor da curtose. Se a curtose for maior que zero (caudas pesadas), o desvio padrão é ampliado. Se for menor que zero (caudas leves), o desvio padrão é reduzido.
 
 2. Correção com Assimetria (Skewness)
 Outra abordagem é ajustar o desvio padrão com base na assimetria dos dados, usando o coeficiente de assimetria:
-
+``` java
 public static double calcularAssimetria(double[] valores) {
     double media = calcularMedia(valores);
     double desvioPadrao = calcularDesvioPadrao(valores);
@@ -365,6 +367,8 @@ public static double calcularDesvioPadraoCorrigidoPorAssimetria(double[] valores
 
     return desvioPadrao;
 }
+```
+
 Essas funções podem ajudar a ajustar o desvio padrão quando os dados não seguem uma distribuição normal, levando em conta a curtose (caudas pesadas ou leves) ou a assimetria (skewness).
 
 Você disse:
@@ -456,7 +460,8 @@ Mesmo com esta sugestão continuo tendo valores para desvios maiores que a médi
 	Desv.Corri.: 77
 	Curtose....: 0
 	Desvio Pad.: 76
-O ChatGPT disse:
+
+# O ChatGPT disse:
 Pelo que você está observando, mesmo com os ajustes para curtose e assimetria, o desvio padrão continua sendo maior que a média em algumas das suas amostras. Isso é algo que pode ocorrer especialmente quando há grande variabilidade nos dados ou quando a distribuição não é simétrica e tem outliers significativos.
 
 Possíveis explicações:
@@ -470,7 +475,7 @@ Sugestão para uma abordagem alternativa:
 Se o desvio padrão tradicional e as correções de curtose e assimetria não estão sendo suficientes, talvez seja interessante considerar uma métrica alternativa de dispersão, como:
 
 Desvio absoluto médio: Ao invés de usar o desvio padrão (que é sensível a valores muito grandes ou pequenos), o desvio absoluto médio calcula a média das distâncias absolutas de cada ponto até a média. Isso reduz a influência de outliers:
-
+``` java
 public static double calcularDesvioAbsolutoMedio(double[] valores) {
     double media = calcularMedia(valores);
     double soma = 0.0;
@@ -490,6 +495,8 @@ public static double calcularIQR(double[] valores) {
     double q75 = valores[(int) (valores.length * 0.75)];
     return q75 - q25;
 }
+```
+
 Essas abordagens podem ajudar a lidar com distribuições onde o desvio padrão tradicional é muito influenciado por valores extremos ou uma grande variabilidade. Dependendo da natureza dos seus dados, essas métricas podem ser mais representativas da dispersão real.
 
 Você disse:
@@ -499,14 +506,15 @@ Para ordenar um TreeMap por valor de forma decrescente, você precisa de um comp
 
 Aqui está um exemplo de como fazer isso:
 
-Passos:
-Converter o TreeMap em uma lista de entradas (Map.Entry).
+#### Passos:
+1 Converter o TreeMap em uma lista de entradas (Map.Entry).
 
-Ordenar a lista de entradas pelos valores em ordem decrescente.
+2 Ordenar a lista de entradas pelos valores em ordem decrescente.
 
-Inserir as entradas ordenadas em um LinkedHashMap, que preserva a ordem de inserção.
+3 Inserir as entradas ordenadas em um LinkedHashMap, que preserva a ordem de inserção.
 
 Código Exemplo:
+``` java
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -547,7 +555,9 @@ public class OrdenarTreeMapPorValor {
         return mapaOrdenado;
     }
 }
-Explicação:
+```
+
+#### Explicação:
 Conversão para Lista de Entradas: O TreeMap original é convertido em uma lista de entradas (Map.Entry), para que possamos ordenar essas entradas.
 
 Ordenação: Usamos o método sort() da classe List para ordenar a lista com um comparador personalizado que compara os valores de forma decrescente.
@@ -556,7 +566,7 @@ LinkedHashMap: A lista ordenada é então inserida em um LinkedHashMap, que mant
 
 Saída Esperada:
 Se o TreeMap tiver os valores:
-
+``` make
 {01=265, 02=277, 03=256, 04=292, 05=301}
 A saída será:
 
@@ -565,11 +575,13 @@ Chave: 04 - Valor: 292
 Chave: 02 - Valor: 277
 Chave: 01 - Valor: 265
 Chave: 03 - Valor: 256
+```
+
 Dessa forma, o TreeMap será ordenado pelos valores em ordem decrescente.
 
-Você disse:
+# Você disse:
 Eis o meu projeto e ele não está ordenando o TreeMap baseado no valor de forma decrescente:
-
+``` java
 /**
  * 
  */
@@ -595,8 +607,6 @@ public class AlgoritmoMegaPower extends AbstractMegaPower {
 	static TreeMap<Integer, TreeMap<String, Long>> posicoes   = new TreeMap<Integer, TreeMap<String, Long>>();
 	static TreeMap<String , Long>                  DezRanking = new TreeMap<String , Long>();
 	static TreeMap<String , Long>                  DezOccours = new TreeMap<String , Long>();
-
-	
 	@SuppressWarnings("static-access")
 	public static void defineArgs() {
         options.addOption( OptionBuilder
@@ -890,12 +900,15 @@ public class AlgoritmoMegaPower extends AbstractMegaPower {
     }
 
 }
-O ChatGPT disse:
+```
+
+# O ChatGPT disse:
 O problema com a função de ordenação que você está utilizando é que, embora você tenha implementado uma lógica para ordenar os valores em ordem decrescente, você está retornando um TreeMap. O TreeMap em Java, por definição, ordena suas chaves de forma natural (ordem crescente), ignorando a ordenação personalizada que você fez pelos valores.
 
 Para resolver o problema, você deve usar uma estrutura de dados que preserve a ordem de inserção, como um LinkedHashMap, em vez de um TreeMap, após ordenar os valores. A seguir está o ajuste necessário no método sortByValDesc:
 
 Ajuste no Método sortByValDesc
+``` java
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -934,6 +947,7 @@ public class AlgoritmoMegaPower {
         sortedMap.forEach((key, value) -> System.out.println("Chave: " + key + " - Valor: " + value));
     }
 }
+```
 Explicação da Correção:
 Uso de LinkedHashMap: O TreeMap classifica as chaves, e isso estava anulando sua ordenação pelos valores. Agora, a lista de entradas ordenadas por valor é inserida em um LinkedHashMap, que preserva a ordem de inserção.
 
@@ -941,7 +955,7 @@ Mantém a Ordenação: Como o LinkedHashMap mantém a ordem de inserção, os va
 
 Saída esperada:
 Se o TreeMap contiver:
-
+``` make
 {01=265, 02=277, 03=256, 04=292, 05=301}
 A saída será:
 
@@ -950,16 +964,9 @@ Chave: 04 - Valor: 292
 Chave: 02 - Valor: 277
 Chave: 01 - Valor: 265
 Chave: 03 - Valor: 256
+```
+
 Agora, o mapa será ordenado corretamente pelos valores de forma decrescente.
-
-
-
-
-
-
-
-
-
 
 Nenhum arquivo escolhidoNenhum arquivo escolhido
 ?
