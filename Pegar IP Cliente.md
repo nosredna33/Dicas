@@ -1,3 +1,57 @@
+Sim, você está correto! Se o **celular está no 5G da Vivo** e o **trabalho usa a Claro**, é extremamente improvável que ambos compartilhem o mesmo IP público por NAT ou CGNAT.  
+
+### 🛡️ **O cenário mais provável: A Umbler está mascarando os IPs**  
+A **Umbler** (hospedagem) provavelmente usa:  
+1. **Firewall/WAF (Web Application Firewall)** – Filtra e protege o tráfego, mostrando apenas o IP do WAF.  
+2. **Balanceador de Carga ou Proxy Reverso** – Se o site passa por um serviço como **Cloudflare, AWS ALB, ou Nginx Proxy**, o IP real é substituído pelo do balanceador.  
+3. **Configuração do Servidor** – Se o PHP não está lendo os cabeçalhos corretos (`X-Forwarded-For`), ele só vê o IP do último hop (no caso, o da Umbler).  
+
+---
+
+### 🔍 **Como confirmar?**  
+1. **Verifique o cabeçalho `X-Forwarded-For` no PHP:**  
+   ```php
+   echo "IP Remoto (REMOTE_ADDR): " . $_SERVER['REMOTE_ADDR'] . "<br>";
+   echo "IP Forwarded (X-Forwarded-For): " . ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'Não disponível');
+   ```
+   - Se `REMOTE_ADDR` é **sempre o mesmo**, mas `X-Forwarded-For` muda, a Umbler está intermediando.  
+   - Se ambos são iguais, o WAF está ocultando o IP real.  
+
+2. **Teste sem a Umbler (se possível)**  
+   - Se você tem acesso a outro servidor (ex.: localhost, outra hospedagem), compare os IPs.  
+
+3. **Verifique o IP real em outro serviço**  
+   - Acesse [https://ifconfig.me](https://ifconfig.me) ou [https://checkip.amazonaws.com](https://checkip.amazonaws.com) no celular e no trabalho para confirmar se os IPs são **realmente diferentes**.  
+
+---
+
+### 🛠 **Solução para pegar o IP real (se a Umbler permitir)**  
+Se a Umbler repassa o IP real no `X-Forwarded-For`, use:  
+```php
+function getRealIP() {
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        return trim($ips[0]); // Pega o primeiro IP da lista (cliente real)
+    }
+    return $_SERVER['REMOTE_ADDR']; // Fallback
+}
+
+$ipReal = getRealIP();
+echo "IP do cliente: " . $ipReal;
+```
+> ⚠️ **Atenção:** Se a Umbler **não repassar** o IP real, você só verá o IP do firewall deles. Nesse caso, entre em contato com o suporte para confirmar como rastrear IPs reais.  
+
+---
+
+### 📌 **Conclusão**  
+- **Se `REMOTE_ADDR` é igual em ambos os acessos**, a Umbler está **ocultando os IPs reais** (provavelmente por WAF/proxy).  
+- **Se `X-Forwarded-For` mostra IPs diferentes**, basta usar essa informação no código.  
+- **Se nenhum método funciona**, a solução é configurar o servidor (via Umbler) para logar IPs reais ou usar um serviço externo (como Cloudflare, que mostra o IP real em `CF-Connecting-IP`).  
+
+Se precisar de mais ajuda, compartilhe o resultado dos testes! 🚀
+
+-----
+
 Sim, é possível obter o IP do cliente via JavaScript no navegador usando um serviço externo de consulta de IP (já que o JavaScript puro não tem acesso direto ao IP local do usuário). Depois, você pode enviar esse IP para o seu backend PHP via POST.
 
 ---
