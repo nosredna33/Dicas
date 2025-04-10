@@ -1,3 +1,48 @@
+# Obtendo o IP do Cliente em PHP
+
+Para obter o endereço IP do cliente que está acessando seu servidor PHP, você pode usar a variável superglobal `$_SERVER` com diferentes chaves, dependendo da configuração do servidor e se o cliente está atrás de um proxy.
+
+## Método básico (não confiável em todos os casos):
+
+```php
+$ip = $_SERVER['REMOTE_ADDR'];
+```
+
+## Método mais robusto (considerando proxies):
+
+```php
+function getClientIP() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        // IP compartilhado na internet
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        // IP passado por proxy
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        // IP remoto padrão
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    
+    // Para casos onde HTTP_X_FORWARDED_FOR retorna múltiplos IPs
+    $ips = explode(',', $ip);
+    $ip = trim($ips[0]);
+    
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
+}
+
+$clientIP = getClientIP();
+```
+
+## Observações importantes:
+
+1. `REMOTE_ADDR` sempre retornará o IP real do cliente ou o último proxy
+2. `HTTP_X_FORWARDED_FOR` e `HTTP_CLIENT_IP` podem ser falsificados e não são confiáveis
+3. Em ambientes com balanceadores de carga ou CDNs, você pode precisar verificar cabeçalhos específicos
+
+Para a maioria dos casos, usar apenas `$_SERVER['REMOTE_ADDR']` é suficiente, mas se você precisar lidar com proxies, a função mais completa acima pode ser útil.
+
+---
+
 Sim, você está correto! Se o **celular está no 5G da Vivo** e o **trabalho usa a Claro**, é extremamente improvável que ambos compartilhem o mesmo IP público por NAT ou CGNAT.  
 
 ### 🛡️ **O cenário mais provável: A Umbler está mascarando os IPs**  
