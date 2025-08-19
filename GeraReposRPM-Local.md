@@ -88,21 +88,30 @@ cd "$LOCAL_REPO_DIR/"
 
 unzip Packages-x86_64.zip
 
+cd Packages
+
+# Instala o createrepo
+yum localinstall -y --skip-broken createrepo-*.rpm deltarpm-*.rpm \
+                 python-deltarpm-*.rpm libxml2-2.9.1-6.el7.5.x86_64.rpm \
+                 libxml2-python-2.9.1-6.el7.5.x86_64.rpm
+
 # Gera metadata do repo
-createrepo "$LOCAL_REPO_DIR"
+cd ..
+createrepo "${LOCAL_REPO_DIR}/Packages"
+
 
 # Cria arquivo .repo para yum
 cat > ./CentOS-Local.repo << EOF
 [localrepo]
 name=CentOS 7 Local Repo
-baseurl=file://$LOCAL_REPO_DIR/
+baseurl=file://${LOCAL_REPO_DIR}/Packages/
 enabled=1
 gpgcheck=0
 EOF
 
 echo "==========================================="
 echo "Repositório local criado com sucesso!"
-echo "RPMs em: $LOCAL_REPO_DIR"
+echo "RPMs em: ${LOCAL_REPO_DIR}/Packages"
 echo "Arquivo repo: $WORKDIR/CentOS-Local.repo"
 echo "ZIP backup: $WORKDIR/Packages-x86_64.zip"
 echo "Use 'yum --disablerepo=\* --enablerepo=localrepo install <pacote>' para instalar pacotes."
